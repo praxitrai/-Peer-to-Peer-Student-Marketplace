@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+{% block content %}
+<h3 class="mb-3">Orders for My Listings</h3>
+<table class="table align-middle">
+  <thead><tr><th>Item</th><th>Buyer</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for o in orders %}
+    <tr>
+      <td><a href="{{ url_for('listings.detail', listing_id=o.listing.id) }}">{{ o.listing.title }}</a></td>
+      <td>{{ o.buyer.full_name }}</td>
+      <td><span class="badge bg-info text-dark">{{ o.status }}</span></td>
+      <td>
+        {% if o.status == 'pending' %}
+        <form method="POST" action="{{ url_for('orders.update_status', order_id=o.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="status" value="confirmed">
+          <button class="btn btn-sm btn-outline-success">Confirm</button>
+        </form>
+        <form method="POST" action="{{ url_for('orders.update_status', order_id=o.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="status" value="cancelled">
+          <button class="btn btn-sm btn-outline-danger">Cancel</button>
+        </form>
+        {% elif o.status == 'confirmed' %}
+        <form method="POST" action="{{ url_for('orders.update_status', order_id=o.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="status" value="completed">
+          <button class="btn btn-sm btn-outline-primary">Mark Completed</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="text-muted">No orders on your listings yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
