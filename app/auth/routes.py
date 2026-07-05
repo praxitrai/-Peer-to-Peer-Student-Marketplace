@@ -47,3 +47,41 @@ def register():
         return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form_data={})
+@auth_bp.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        remember = bool(request.form.get("remember"))
+
+        user = User.query.filter_by(email=email).first()
+
+        # Deliberately generic error message -> avoids revealing whether the
+        # email exists (defends against user-enumeration attacks).
+        if user is None or not user.check_password(password):
+            flash("Invalid email or password.", "danger")
+            return render_template("auth/login.html")
+
+        login_user(user, remember=remember)
+        session.permanent = True
+        flash(f"Welcome back, {user.full_name.split()[0]}!", "success")
+
+        next_page = request.args.get("next")
+        # Only allow relative redirects to prevent open-redirect attacks
+        if next_page and next_page.startswith("/"):
+            return redirect(next_page)
+        return redirect(url_for("main.index"))
+
+    return render_template("auth/login.html")
+
+
+@auth_bp.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("main.index"))
