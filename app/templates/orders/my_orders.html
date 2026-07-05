@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+<h3 class="mb-3">My Orders</h3>
+<table class="table align-middle">
+  <thead><tr><th>Item</th><th>Seller</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for o in orders %}
+    <tr>
+      <td><a href="{{ url_for('listings.detail', listing_id=o.listing.id) }}">{{ o.listing.title }}</a></td>
+      <td>{{ o.listing.seller.full_name }}</td>
+      <td><span class="badge bg-info text-dark">{{ o.status }}</span></td>
+      <td>
+        {% if o.status == 'pending' %}
+        <form method="POST" action="{{ url_for('orders.update_status', order_id=o.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="status" value="cancelled">
+          <button class="btn btn-sm btn-outline-danger">Cancel</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="text-muted">You haven't placed any orders yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+                                                                                                                                                                                             
+
