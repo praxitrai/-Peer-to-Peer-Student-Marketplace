@@ -67,3 +67,66 @@ def index():
         max_price=max_price,
         search=search,
     )
+@listings_bp.route("/<int:listing_id>")
+def detail(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+
+    # --- Recently Viewed: tracked entirely in the session ---
+    recent = session.get("recently_viewed", [])
+    recent = [lid for lid in recent if lid != listing.id]
+    recent.insert(0, listing.id)
+    session["recently_viewed"] = recent[: current_app.config["RECENTLY_VIEWED_MAX"]]
+
+    is_favorited = False
+    if current_user.is_authenticated:
+        from app.models import Favorite
+        is_favorited = Favorite.query.filter_by(
+            user_id=current_user.id, listing_id=listing.id
+        ).first() is not None
+
+    return render_template("listings/detail.html", listing=listing, is_favorited=is_favorited)
+
+
+@listings_bp.route("/new", methods=["GET", "POST"])
+@login_required
+def create():
+    categories = Category.query.order_by(Category.name).all()
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        price = request.form.get("price", type=float)
+        category_id = request.form.get("category_id", type=int)
+        image = request.files.get("image")
+
+        errors = []
+        if not title:
+            errors.append("Title is required.")
+        if not description:
+            errors.append("Description is required.")
+        if price is None or price <= 0:
+            errors.append("Enter a valid price greater than 0.")
+        if not Category.query.get(category_id or 0):
+            errors.append("Please select a valid category.")
+
+        if errors:
+            for e in errors:
+                flash(e, "danger")
+            return render_template("listings/create.html", categories=categories, form_data=request.form)
+
+        filename = save_upload(image)
+
+        listing = Listing(
+            title=title,
+            description=description,
+            price=price,
+            category_id=category_id,
+            seller_id=current_user.id,
+            image_filename=filename,
+        )
+        db.session.add(listing)
+        db.session.commit()
+        flash("Listing created successfully.", "success")
+        return redirect(url_for("listings.detail", listing_id=listing.id))
+
+    return render_template("listings/create.html", categories=categories, form_data={})
