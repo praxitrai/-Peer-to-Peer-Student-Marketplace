@@ -31,3 +31,39 @@ def save_upload(file_storage):
     file_storage.save(dest)
     return unique_name
 
+@listings_bp.route("/")
+def index():
+    query = Listing.query.filter_by(status="available")
+
+    category_id = request.args.get("category", type=int)
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+    search = request.args.get("q", "").strip()
+
+    if category_id:
+        query = query.filter(Listing.category_id == category_id)
+    if min_price is not None:
+        query = query.filter(Listing.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Listing.price <= max_price)
+    if search:
+        like = f"%{search}%"
+        query = query.filter(Listing.title.ilike(like))
+
+    page = request.args.get("page", 1, type=int)
+    pagination = query.order_by(Listing.created_at.desc()).paginate(
+        page=page, per_page=current_app.config["ITEMS_PER_PAGE"], error_out=False
+    )
+
+    categories = Category.query.order_by(Category.name).all()
+
+    return render_template(
+        "listings/list.html",
+        listings=pagination.items,
+        pagination=pagination,
+        categories=categories,
+        selected_category=category_id,
+        min_price=min_price,
+        max_price=max_price,
+        search=search,
+    )
