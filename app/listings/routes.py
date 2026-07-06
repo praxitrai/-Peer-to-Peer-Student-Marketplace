@@ -130,3 +130,98 @@ def create():
         return redirect(url_for("listings.detail", listing_id=listing.id))
 
     return render_template("listings/create.html", categories=categories, form_data={})
+@listings_bp.route("/<int:listing_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    if listing.seller_id != current_user.id:
+        abort(403)  # Authorization check: only the owner may edit
+
+    categories = Category.query.order_by(Category.name).all()
+
+    if request.method == "POST":
+        listing.title = request.form.get("title", "").strip()
+        listing.description = request.form.get("description", "").strip()
+        listing.price = request.form.get("price", type=float) or listing.price
+        listing.category_id = request.form.get("category_id", type=int) or listing.category_id
+
+        image = request.files.get("image")
+        new_filename = save_upload(image)
+        if new_filename:
+            listing.image_filename = new_filename
+
+        db.session.commit()
+        flash("Listing updated.", "success")
+        return redirect(url_for("listings.detail", listing_id=listing.id))
+
+    return render_template("listings/edit.html", listing=listing, categories=categories)
+
+
+@listings_bp.route("/<int:listing_id>/delete", methods=["POST"])
+@login_required
+def delete(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    if listing.seller_id != current_user.id:
+        abort(403)
+
+    db.session.delete(listing)
+    db.session.commit()
+    flash("Listing deleted.", "info")
+    return redirect(url_for("listings.my_listings"))
+
+
+@listings_bp.route("/<int:listing_id>/toggle-sold", methods=["POST"])
+@login_required
+def toggle_sold(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    if listing.seller_id != current_user.id:
+        abort(403)
+
+    listing.status = "sold" if listing.status == "available" else "available"
+    db.session.commit()
+    flash(f"Listing marked as {listing.status}.", "success")
+    return redirect(url_for("listings.my_listings"))
+
+
+@listings_bp.route("/mine")
+@login_required
+def my_listings():
+    listings = Listing.query.filter_by(seller_id=current_user.id).order_by(
+        Listing.created_at.desc()
+    ).all()
+    return render_template("listings/my_listings.html", listings=listings)
+
+
+@listings_bp.route("/<int:listing_id>/contact", methods=["POST"])
+@login_required
+def contact_seller(listing_id):
+    listing = Listing.query.get_or_404(listing_id)
+    body = request.form.get("body", "").strip()
+
+    if listing.seller_id == current_user.id:
+        flash("You can't message yourself about your own listing.", "warning")
+        return redirect(url_for("listings.detail", listing_id=listing.id))
+
+    if not body:
+        flash("Message cannot be empty.", "danger")
+        return redirect(url_for("listings.detail", listing_id=listing.id))
+
+    msg = Message(listing_id=listing.id, sender_id=current_user.id, body=body[:1000])
+    db.session.add(msg)
+    db.session.commit()
+    flash("Message sent to seller.", "success")
+    return redirect(url_for("listings.detail", listing_id=listing.id))
+
+
+@listings_bp.route("/messages")
+@login_required
+def inbox():
+    # Messages sent about listings owned by the current user
+    messages = (
+        Message.query.join(Listing, Message.listing_id == Listing.id)
+        .filter(Listing.seller_id == current_user.id)
+        .order_by(Message.created_at.desc())
+        .all()
+    )
+    return render_template("listings/inbox.html", messages=messages)
+                                                                                                                                                                                             
