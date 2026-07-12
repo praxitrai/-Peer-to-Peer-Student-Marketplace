@@ -47,6 +47,8 @@ def register():
         return redirect(url_for("auth.login"))
 
     return render_template("auth/register.html", form_data={})
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -63,6 +65,10 @@ def login():
         # email exists (defends against user-enumeration attacks).
         if user is None or not user.check_password(password):
             flash("Invalid email or password.", "danger")
+            return render_template("auth/login.html")
+
+        if user.is_banned:
+            flash("This account has been suspended. Contact an administrator.", "danger")
             return render_template("auth/login.html")
 
         login_user(user, remember=remember)
@@ -85,3 +91,44 @@ def logout():
     session.clear()
     flash("You have been logged out.", "info")
     return redirect(url_for("main.index"))
+
+
+@auth_bp.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        student_id = request.form.get("student_id", "").strip()
+
+        if not full_name:
+            flash("Full name cannot be empty.", "danger")
+            return render_template("auth/profile.html")
+
+        current_user.full_name = full_name
+        current_user.student_id = student_id or None
+        db.session.commit()
+        flash("Profile updated.", "success")
+        return redirect(url_for("auth.profile"))
+
+    return render_template("auth/profile.html")
+
+
+@auth_bp.route("/change-password", methods=["POST"])
+@login_required
+def change_password():
+    current_password = request.form.get("current_password", "")
+    new_password = request.form.get("new_password", "")
+    confirm_password = request.form.get("confirm_new_password", "")
+
+    if not current_user.check_password(current_password):
+        flash("Current password is incorrect.", "danger")
+    elif len(new_password) < 8:
+        flash("New password must be at least 8 characters long.", "danger")
+    elif new_password != confirm_password:
+        flash("New passwords do not match.", "danger")
+    else:
+        current_user.set_password(new_password)
+        db.session.commit()
+        flash("Password changed successfully.", "success")
+
+    return redirect(url_for("auth.profile"))
