@@ -20,4 +20,4 @@ def index():
         recently_viewed = [found[i] for i in recent_ids if i in found]
 
     return render_template("index.html", latest=latest, recently_viewed=recently_viewed)
-                                                                                           
+                                                                                                
