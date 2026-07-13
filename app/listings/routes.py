@@ -31,6 +31,7 @@ def save_upload(file_storage):
     file_storage.save(dest)
     return unique_name
 
+
 @listings_bp.route("/")
 def index():
     query = Listing.query.filter_by(status="available")
@@ -67,6 +68,8 @@ def index():
         max_price=max_price,
         search=search,
     )
+
+
 @listings_bp.route("/<int:listing_id>")
 def detail(listing_id):
     listing = Listing.query.get_or_404(listing_id)
@@ -130,6 +133,8 @@ def create():
         return redirect(url_for("listings.detail", listing_id=listing.id))
 
     return render_template("listings/create.html", categories=categories, form_data={})
+
+
 @listings_bp.route("/<int:listing_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(listing_id):
@@ -224,4 +229,4 @@ def inbox():
         .all()
     )
     return render_template("listings/inbox.html", messages=messages)
-                                                                                                                                                                                             
+                                                                          
