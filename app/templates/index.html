@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Home - Campus Marketplace{% endblock %}
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+  <h1 class="display-6 fw-bold">Buy & sell with fellow Softwarica students</h1>
+  <p class="col-md-8 fs-5">Textbooks, electronics, and lab equipment — bought and sold safely within campus.</p>
+  <a class="btn btn-primary btn-lg" href="{{ url_for('listings.index') }}">Browse Listings</a>
+</div>
+
+<h3 class="mb-3">Newest Listings</h3>
+<div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
+  {% for l in latest %}
+  <div class="col">
+    <div class="card h-100">
+      {% if l.image_filename %}
+        <img src="{{ url_for('static', filename='uploads/' ~ l.image_filename) }}" class="card-img-top" style="height:160px;object-fit:cover;">
+      {% else %}
+        <div class="bg-secondary-subtle" style="height:160px;"></div>
+      {% endif %}
+      <div class="card-body">
+        <h6 class="card-title">{{ l.title }}</h6>
+        <p class="card-text fw-bold">रु {{ "%.2f"|format(l.price) }}</p>
+        <a href="{{ url_for('listings.detail', listing_id=l.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">No listings yet — be the first to sell something!</p>
+  {% endfor %}
+</div>
+
+{% if recently_viewed %}
+<h3 class="mb-3">Recently Viewed</h3>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+  {% for l in recently_viewed %}
+  <div class="col">
+    <div class="card h-100">
+      {% if l.image_filename %}
+        <img src="{{ url_for('static', filename='uploads/' ~ l.image_filename) }}" class="card-img-top" style="height:140px;object-fit:cover;">
+      {% else %}
+        <div class="bg-secondary-subtle" style="height:140px;"></div>
+      {% endif %}
+      <div class="card-body">
+        <h6 class="card-title">{{ l.title }}</h6>
+        <a href="{{ url_for('listings.detail', listing_id=l.id) }}" class="btn btn-sm btn-outline-secondary">View again</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
