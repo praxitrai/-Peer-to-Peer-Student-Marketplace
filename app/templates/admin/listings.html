@@ -1,0 +1,28 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Manage Listings{% endblock %}
+{% block admin_content %}
+<h3 class="mb-3">All Listings</h3>
+<table class="table align-middle">
+  <thead><tr><th>Title</th><th>Seller</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for l in listings %}
+    <tr>
+      <td><a href="{{ url_for('listings.detail', listing_id=l.id) }}">{{ l.title }}</a></td>
+      <td>{{ l.seller.full_name }}</td>
+      <td>{{ l.category.name }}</td>
+      <td>रु {{ "%.2f"|format(l.price) }}</td>
+      <td>{% if l.status == 'available' %}<span class="badge bg-success">Available</span>{% else %}<span class="badge bg-secondary">Sold</span>{% endif %}</td>
+      <td>
+        <form method="POST" action="{{ url_for('admin.delete_listing', listing_id=l.id) }}" class="d-inline"
+              onsubmit="return confirm('Remove this listing? This cannot be undone.');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">Remove</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="text-muted">No listings yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

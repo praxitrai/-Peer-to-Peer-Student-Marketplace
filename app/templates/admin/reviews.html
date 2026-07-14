@@ -1,0 +1,21 @@
+{% extends "admin/_layout.html" %}
+{% block title %}Manage Reviews{% endblock %}
+{% block admin_content %}
+<h3 class="mb-3">All Reviews</h3>
+{% for r in reviews %}
+<div class="border rounded p-3 mb-2">
+  <strong>{{ "★"*r.rating }}{{ "☆"*(5-r.rating) }}</strong>
+  on <a href="{{ url_for('listings.detail', listing_id=r.listing_id) }}">{{ r.listing.title }}</a>
+  by {{ r.reviewer.full_name }}
+  <span class="text-muted small">({{ r.created_at.strftime('%d %b %Y') }})</span>
+  <p class="mb-1">{{ r.comment }}</p>
+  <form method="POST" action="{{ url_for('admin.delete_review', review_id=r.id) }}" class="d-inline"
+        onsubmit="return confirm('Remove this review?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-sm btn-outline-danger">Remove</button>
+  </form>
+</div>
+{% else %}
+<p class="text-muted">No reviews yet.</p>
+{% endfor %}
+{% endblock %}
