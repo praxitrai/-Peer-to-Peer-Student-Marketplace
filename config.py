@@ -39,4 +39,3 @@ class Config:
     # --- Misc ---
     ITEMS_PER_PAGE = 9
     RECENTLY_VIEWED_MAX = 6
-                                

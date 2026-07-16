@@ -1,13 +1,308 @@
-body {
-  background-color: #f8f9fa;
+/* ============================================================
+   Campus Marketplace — "Ink & Paper" design system
+   Grounded in secondhand-campus-commerce ephemera: library due-
+   date stamps, card catalogs, and book spines on a shelf.
+   ============================================================ */
+
+:root {
+  --paper: #FAF6EC;
+  --paper-raised: #FFFFFF;
+  --ink: #202B45;
+  --ink-soft: #4A5570;
+  --mustard: #C68A2C;
+  --mustard-dark: #A8721E;
+  --forest: #3C6E47;
+  --brick: #A23E2F;
+  --rule: #DED5BE;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 }
+
+/* ---------- Base ---------- */
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+a { color: var(--mustard-dark); }
+a:hover { color: var(--ink); }
+
+.text-muted { color: var(--ink-soft) !important; }
+
+/* ---------- Navbar ---------- */
+.site-navbar {
+  background-color: var(--ink);
+}
+.site-navbar .navbar-brand {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--paper);
+}
+.site-navbar .nav-link {
+  color: #D8DCE8;
+  font-weight: 500;
+}
+.site-navbar .nav-link:hover {
+  color: var(--mustard);
+}
+.site-navbar .nav-link-admin {
+  color: var(--mustard);
+  font-weight: 600;
+}
+.navbar-toggler {
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  background-color: var(--mustard);
+  border-color: var(--mustard);
+  color: var(--ink);
+  font-weight: 600;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--mustard-dark);
+  border-color: var(--mustard-dark);
+  color: #fff;
+}
+.btn-outline-primary {
+  color: var(--mustard-dark);
+  border-color: var(--mustard);
+}
+.btn-outline-primary:hover {
+  background-color: var(--mustard);
+  border-color: var(--mustard);
+  color: var(--ink);
+}
+.btn-accent {
+  background-color: var(--mustard);
+  border-color: var(--mustard);
+  color: var(--ink);
+  font-weight: 600;
+}
+.btn-accent:hover {
+  background-color: var(--mustard-dark);
+  color: #fff;
+}
+.btn-success { background-color: var(--forest); border-color: var(--forest); }
+.btn-outline-success { color: var(--forest); border-color: var(--forest); }
+.btn-outline-success:hover { background-color: var(--forest); border-color: var(--forest); }
+.btn-outline-danger { color: var(--brick); border-color: var(--brick); }
+.btn-outline-danger:hover { background-color: var(--brick); border-color: var(--brick); }
+
+/* ---------- Cards ---------- */
 .card {
+  background-color: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  box-shadow: 0 10px 24px rgba(32, 43, 69, 0.12);
 }
-footer {
-  border-top: 1px solid #dee2e6;
+.card-title { font-family: var(--font-display); font-weight: 600; }
+
+/* ---------- Stamp badges (signature element) ----------
+   Used for status/category tags across listing cards, detail
+   pages, and admin views: dashed border, slight rotation,
+   monospace uppercase — evokes a library due-date stamp. */
+.stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25em 0.65em;
+  border: 1.5px dashed currentColor;
+  border-radius: 999px;
+  transform: rotate(-2deg);
+  background: transparent;
+}
+.stamp-available { color: var(--forest); }
+.stamp-sold { color: var(--brick); }
+.stamp-category { color: var(--ink-soft); border-color: var(--rule); }
+.stamp-admin { color: var(--mustard-dark); }
+
+/* ---------- Alerts (remap Bootstrap categories to palette) ---------- */
+.alert-success { background-color: #E8F0E9; border-color: var(--forest); color: #24462E; }
+.alert-danger { background-color: #F5E7E4; border-color: var(--brick); color: #6E2A20; }
+.alert-warning { background-color: #FBF0DC; border-color: var(--mustard); color: #6E5017; }
+.alert-info { background-color: #E9EEF5; border-color: var(--ink-soft); color: var(--ink); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   Homepage hero
+   ============================================================ */
+.hero {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-radius: 10px;
+  padding: 3.5rem 3rem;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mustard);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.hero h1 {
+  color: var(--paper);
+  font-size: 2.75rem;
+  font-weight: 600;
+  max-width: 20ch;
+  line-height: 1.15;
+}
+.hero p.lede {
+  color: #C7CCDA;
+  font-size: 1.1rem;
+  max-width: 46ch;
+  margin: 1rem 0 1.75rem;
+}
+
+/* ============================================================
+   "From the Shelf" — book showcase (signature element)
+   Real listings rendered as vertical spines resting on a
+   shelf ledge, grounded directly in the site's own content.
+   ============================================================ */
+.shelf-section {
+  margin-bottom: 3.5rem;
+}
+.shelf-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+.shelf-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+.shelf-header a {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.shelf-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 1.5rem 0.5rem 0;
+  scrollbar-width: thin;
+}
+
+.book-spine {
+  position: relative;
+  flex: 0 0 auto;
+  width: 68px;
+  height: 230px;
+  border-radius: 4px 4px 2px 2px;
+  box-shadow: inset -6px 0 10px rgba(0,0,0,0.12), 0 6px 10px rgba(32,43,69,0.18);
+  text-decoration: none;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 12px;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+.book-spine:hover {
+  transform: translateY(-6px);
+}
+.book-spine .spine-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--paper);
+  max-height: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-top: 8px;
+}
+.book-spine .spine-tag {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+/* Spine color rotation, cycled via template loop index */
+.spine-0 { background: linear-gradient(180deg, #3E5C76, #2E4459); }
+.spine-1 { background: linear-gradient(180deg, var(--mustard), var(--mustard-dark)); }
+.spine-2 { background: linear-gradient(180deg, var(--forest), #274B30); }
+.spine-3 { background: linear-gradient(180deg, var(--brick), #7C2E22); }
+.spine-4 { background: linear-gradient(180deg, #6B4C6B, #4E374E); }
+.spine-5 { background: linear-gradient(180deg, var(--ink), #131B2E); }
+
+.shelf-ledge {
+  height: 16px;
+  margin: 0 0.5rem;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(180deg, #8A6A3E, #6B4F28);
+  box-shadow: 0 8px 14px rgba(32,43,69,0.25);
+}
+
+/* ---------- Category chips (also stamp-styled) ---------- */
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.category-chip {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--rule);
+  border-radius: 999px;
+  padding: 0.4em 0.9em;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.category-chip:hover {
+  border-color: var(--mustard);
+  color: var(--mustard-dark);
+}
+
+@media (max-width: 767px) {
+  .hero { padding: 2.5rem 1.5rem; }
+  .hero h1 { font-size: 2rem; }
 }
