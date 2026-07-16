@@ -1,13 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Home - Campus Marketplace{% endblock %}
 {% block content %}
-<div class="p-5 mb-4 bg-light rounded-3">
-  <h1 class="display-6 fw-bold">Buy & sell with fellow Softwarica students</h1>
-  <p class="col-md-8 fs-5">Textbooks, electronics, and lab equipment — bought and sold safely within campus.</p>
-  <a class="btn btn-primary btn-lg" href="{{ url_for('listings.index') }}">Browse Listings</a>
+
+<div class="hero">
+  <span class="hero-eyebrow">Softwarica Student Marketplace</span>
+  <h1>Buy and sell what your classmates already own.</h1>
+  <p class="lede">Textbooks, electronics, and lab equipment — bought and sold safely within campus, one listing away.</p>
+  <a class="btn btn-accent me-2" href="{{ url_for('listings.index') }}">Browse Listings</a>
+  {% if current_user.is_authenticated %}
+  <a class="btn btn-outline-light" href="{{ url_for('listings.create') }}">Sell an Item</a>
+  {% else %}
+  <a class="btn btn-outline-light" href="{{ url_for('auth.register') }}">Sign Up Free</a>
+  {% endif %}
 </div>
 
-<h3 class="mb-3">Newest Listings</h3>
+{% if shelf_books %}
+<div class="shelf-section">
+  <div class="shelf-header">
+    <h2>From the Shelf</h2>
+    <a href="{{ url_for('listings.index', category=categories|selectattr('name','equalto','Textbooks')|map(attribute='id')|first) }}">Browse all textbooks →</a>
+  </div>
+  <div class="shelf-row">
+    {% for l in shelf_books %}
+    <a href="{{ url_for('listings.detail', listing_id=l.id) }}" class="book-spine spine-{{ loop.index0 % 6 }}" title="{{ l.title }}">
+      <span class="spine-tag">रु {{ "%.0f"|format(l.price) }}</span>
+      <span class="spine-title">{{ l.title }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="shelf-ledge"></div>
+</div>
+{% endif %}
+
+{% if categories %}
+<div class="mb-5">
+  <h2 class="h5 mb-3">Browse by Category</h2>
+  <div class="category-chip-row">
+    {% for c in categories %}
+    <a href="{{ url_for('listings.index', category=c.id) }}" class="category-chip">{{ c.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<h2 class="h4 mb-3">Newest Listings</h2>
 <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
   {% for l in latest %}
   <div class="col">
@@ -18,6 +54,7 @@
         <div class="bg-secondary-subtle" style="height:160px;"></div>
       {% endif %}
       <div class="card-body">
+        <div class="mb-2"><span class="stamp stamp-category">{{ l.category.name }}</span></div>
         <h6 class="card-title">{{ l.title }}</h6>
         <p class="card-text fw-bold">रु {{ "%.2f"|format(l.price) }}</p>
         <a href="{{ url_for('listings.detail', listing_id=l.id) }}" class="btn btn-sm btn-outline-primary">View</a>
@@ -30,7 +67,7 @@
 </div>
 
 {% if recently_viewed %}
-<h3 class="mb-3">Recently Viewed</h3>
+<h2 class="h4 mb-3">Recently Viewed</h2>
 <div class="row row-cols-1 row-cols-md-4 g-4">
   {% for l in recently_viewed %}
   <div class="col">
