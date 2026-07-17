@@ -81,4 +81,3 @@ def update_status(order_id):
         flash(f"Order marked as {new_status}.", "success")
 
     return redirect(request.referrer or url_for("orders.my_orders"))
-                                                                            
