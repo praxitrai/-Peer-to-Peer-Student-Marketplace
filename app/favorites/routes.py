@@ -35,4 +35,3 @@ def toggle(listing_id):
         flash("Added to watchlist.", "success")
 
     return redirect(url_for("listings.detail", listing_id=listing.id))
-                                                                         
