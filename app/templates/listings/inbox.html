@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Inbox{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="fas fa-comments text-primary"></i>
+            Inbox
+        </h2>
+
+        <span class="badge bg-primary fs-6">
+            {{ messages|length }} Messages
+        </span>
+    </div>
+
+    {% if messages %}
+
+        {% for m in messages %}
+
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+            <div class="card-body">
+
+                <div class="row align-items-center">
+
+                    <!-- Product Image -->
+                    <div class="col-md-2 text-center">
+
+                        {% if m.listing.image %}
+                            <img src="{{ url_for('static', filename='uploads/' ~ m.listing.image) }}"
+                                 class="img-fluid rounded shadow"
+                                 style="height:120px;width:120px;object-fit:cover;">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/no-image.png') }}"
+                                 class="img-fluid rounded shadow"
+                                 style="height:120px;width:120px;object-fit:cover;">
+                        {% endif %}
+
+                    </div>
+
+                    <!-- Listing Details -->
+                    <div class="col-md-6">
+
+                        <h5 class="fw-bold mb-2">
+                            {{ m.listing.title }}
+                        </h5>
+
+                        <h6 class="text-success mb-2">
+                            Rs. {{ m.listing.price }}
+                        </h6>
+
+                        <p class="mb-2 text-muted">
+
+                            <i class="fas fa-user"></i>
+
+                            <strong>{{ m.sender.full_name }}</strong>
+
+                            sent you a message.
+
+                        </p>
+
+                        <div class="bg-light rounded p-3">
+
+                            {{ m.body }}
+
+                        </div>
+
+                    </div>
+
+                    <!-- Right Side -->
+                    <div class="col-md-4 text-end">
+
+                        <span class="badge bg-secondary mb-3">
+
+                            {{ m.created_at.strftime('%d %b %Y %I:%M %p') }}
+
+                        </span>
+
+                        <br>
+
+                        <a href="{{ url_for('listings.detail', listing_id=m.listing.id) }}"
+                           class="btn btn-primary rounded-pill">
+
+                            <i class="fas fa-eye"></i>
+
+                            View Item
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+    <div class="card shadow border-0 rounded-4">
+
+        <div class="card-body text-center py-5">
+
+            <i class="fas fa-inbox fa-4x text-secondary mb-3"></i>
+
+            <h4>No Messages Yet</h4>
+
+            <p class="text-muted">
+                Buyers haven't contacted you yet.
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
