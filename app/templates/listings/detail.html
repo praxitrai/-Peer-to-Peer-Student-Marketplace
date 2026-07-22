@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }}{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    {% if listing.image_filename %}
+      <img src="{{ url_for('static', filename='uploads/' ~ listing.image_filename) }}" class="img-fluid rounded">
+    {% else %}
+      <div class="bg-secondary-subtle rounded" style="height:320px;"></div>
+    {% endif %}
+  </div>
+  <div class="col-md-6">
+    <h2>{{ listing.title }}
+      {% if listing.status == 'sold' %}<span class="stamp stamp-sold">Sold</span>{% endif %}
+    </h2>
+    <p class="text-muted"><span class="stamp stamp-category">{{ listing.category.name }}</span> &middot; Listed by {{ listing.seller.full_name }}</p>
+    <h3 class="text-primary">रु {{ "%.2f"|format(listing.price) }}</h3>
+    <p>{{ listing.description }}</p>
+
+    {% if current_user.is_authenticated and current_user.id != listing.seller_id %}
+      <form method="POST" action="{{ url_for('favorites.toggle', listing_id=listing.id) }}" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-warning">
+          {% if is_favorited %}★ Remove from Watchlist{% else %}☆ Add to Watchlist{% endif %}
+        </button>
+      </form>
+
+      {% if listing.status == 'available' %}
+      <form method="POST" action="{{ url_for('orders.place', listing_id=listing.id) }}" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-success">Order This Item</button>
+      </form>
+      {% endif %}
+    {% elif current_user.is_authenticated and current_user.id == listing.seller_id %}
+      <a href="{{ url_for('listings.edit', listing_id=listing.id) }}" class="btn btn-outline-secondary">Edit</a>
+      <form method="POST" action="{{ url_for('listings.toggle_sold', listing_id=listing.id) }}" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-dark">
+          {% if listing.status == 'available' %}Mark as Sold{% else %}Mark as Available{% endif %}
+        </button>
+      </form>
+      <form method="POST" action="{{ url_for('listings.delete', listing_id=listing.id) }}" class="d-inline"
+            onsubmit="return confirm('Delete this listing permanently?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-danger">Delete</button>
+      </form>
+    {% else %}
+      <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">Log in to buy or save this item</a>
+    {% endif %}
+  </div>
+</div>
+
+<hr class="my-4">
+
+{% if current_user.is_authenticated and current_user.id != listing.seller_id %}
+<div class="row mb-4">
+  <div class="col-md-6">
+    <h5>Contact Seller</h5>
+    <form method="POST" action="{{ url_for('listings.contact_seller', listing_id=listing.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <textarea name="body" class="form-control mb-2" rows="3" placeholder="Ask about condition, pickup location..." required></textarea>
+      <button type="submit" class="btn btn-outline-primary btn-sm">Send Message</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-8">
+    <h5>Reviews of this seller's item ({{ listing.reviews|length }})</h5>
+    {% for r in listing.reviews %}
+      <div class="border rounded p-2 mb-2">
+        <strong>{{ "★"*r.rating }}{{ "☆"*(5-r.rating) }}</strong> — {{ r.reviewer.full_name }}
+        <p class="mb-1">{{ r.comment }}</p>
+        {% if current_user.is_authenticated and current_user.id == r.reviewer_id %}
+        <form method="POST" action="{{ url_for('reviews.delete', review_id=r.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-link text-danger p-0">Delete</button>
+        </form>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="text-muted">No reviews yet.</p>
+    {% endfor %}
+
+    {% if current_user.is_authenticated and current_user.id != listing.seller_id %}
+    <form method="POST" action="{{ url_for('reviews.add', listing_id=listing.id) }}" class="mt-3">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="mb-2">
+        <label class="form-label">Rating</label>
+        <select name="rating" class="form-select w-auto d-inline">
+          {% for i in [5,4,3,2,1] %}<option value="{{ i }}">{{ i }} stars</option>{% endfor %}
+        </select>
+      </div>
+      <textarea name="comment" class="form-control mb-2" rows="2" placeholder="Write your feedback..." required></textarea>
+      <button type="submit" class="btn btn-sm btn-primary">Submit Review</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+                    
