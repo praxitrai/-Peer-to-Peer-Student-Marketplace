@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Watchlist{% endblock %}
+{% block content %}
+<h3 class="mb-3">My Watchlist</h3>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for f in favorites %}
+  <div class="col">
+    <div class="card h-100">
+      {% if f.listing.image_filename %}
+        <img src="{{ url_for('static', filename='uploads/' ~ f.listing.image_filename) }}" class="card-img-top" style="height:160px;object-fit:cover;">
+      {% else %}
+        <div class="bg-secondary-subtle" style="height:160px;"></div>
+      {% endif %}
+      <div class="card-body">
+        <h6 class="card-title">{{ f.listing.title }}</h6>
+        <p class="fw-bold">रु {{ "%.2f"|format(f.listing.price) }}</p>
+        <a href="{{ url_for('listings.detail', listing_id=f.listing.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+        <form method="POST" action="{{ url_for('favorites.toggle', listing_id=f.listing.id) }}" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-sm btn-outline-danger">Remove</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">Your watchlist is empty.</p>
+  {% endfor %}
+</div>
+{% endblock %}
