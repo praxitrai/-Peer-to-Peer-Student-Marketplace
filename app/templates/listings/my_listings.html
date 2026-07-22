@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}My Listings{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">
+                <i class="fas fa-box-open text-primary"></i>
+                My Listings
+            </h2>
+
+            <small class="text-muted">
+                Total Listings: {{ listings|length }}
+            </small>
+        </div>
+
+        <a href="{{ url_for('listings.create') }}"
+           class="btn btn-primary rounded-pill">
+
+            <i class="fas fa-plus"></i>
+
+            New Listing
+
+        </a>
+
+    </div>
+
+    {% for l in listings %}
+
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <!-- Product Image -->
+
+                <div class="col-md-2 text-center">
+
+                    {% if l.image_filename %}
+
+                    <img src="{{ url_for('static', filename='uploads/' ~ l.image_filename) }}"
+                         alt="{{ l.title }}"
+                         class="listing-image shadow">
+
+                    {% else %}
+
+                    <img src="{{ url_for('static', filename='images/no-image.png') }}"
+                         class="listing-image shadow">
+
+                    {% endif %}
+
+                </div>
+
+                <!-- Details -->
+
+                <div class="col-md-7">
+
+                    <h4 class="fw-bold">
+
+                        {{ l.title }}
+
+                    </h4>
+
+                    <h4 class="text-success">
+
+                        रु {{ "%.2f"|format(l.price) }}
+
+                    </h4>
+
+                    <p>
+
+                        <span class="badge bg-info">
+
+                            {{ l.category.name }}
+
+                        </span>
+
+                        {% if l.status=="available" %}
+
+                        <span class="badge bg-success">
+
+                            Available
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-danger">
+
+                            Sold
+
+                        </span>
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+                <!-- Buttons -->
+
+                <div class="col-md-3">
+
+                    <div class="d-grid gap-2">
+
+                        <a href="{{ url_for('listings.detail', listing_id=l.id) }}"
+                           class="btn btn-primary">
+
+                            <i class="fas fa-eye"></i>
+
+                            View
+
+                        </a>
+
+                        <a href="{{ url_for('listings.edit', listing_id=l.id) }}"
+                           class="btn btn-secondary">
+
+                            <i class="fas fa-edit"></i>
+
+                            Edit
+
+                        </a>
+
+                        <form method="POST"
+                              action="{{ url_for('listings.toggle_sold', listing_id=l.id) }}">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button class="btn btn-warning w-100">
+
+                                <i class="fas fa-check-circle"></i>
+
+                                Toggle Sold
+
+                            </button>
+
+                        </form>
+
+                        <form method="POST"
+                              action="{{ url_for('listings.delete', listing_id=l.id) }}"
+                              onsubmit="return confirm('Delete this listing?');">
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="{{ csrf_token() }}">
+
+                            <button class="btn btn-danger w-100">
+
+                                <i class="fas fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="card shadow border-0">
+
+        <div class="card-body text-center py-5">
+
+            <i class="fas fa-box-open fa-5x text-secondary mb-3"></i>
+
+            <h3>No Listings Yet</h3>
+
+            <p class="text-muted">
+
+                Start selling your unused items.
+
+            </p>
+
+            <a href="{{ url_for('listings.create') }}"
+               class="btn btn-primary">
+
+                Add Your First Listing
+
+            </a>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
